@@ -32,5 +32,9 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      - name: Run Playwright Tests
-        run: node tests/createAgent.js --env=${{ matrix.env }} --browser=${{ matrix.browser }}
+      - name: Run All Playwright Tests
+        run: |
+          for test in tests/*.js; do
+            echo "Running $test"
+            node "$test" --env=${{ matrix.env }} --browser=${{ matrix.browser }}
+          done
