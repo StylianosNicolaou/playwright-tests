@@ -1,6 +1,6 @@
 //Create an Agent (Foodie Agent) on Powerflow
 
-import { login } from "./login.js";
+import { login } from "./utils/login.js";
 import minimist from "minimist";
 
 // Process the arguments given in terminal
