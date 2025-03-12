@@ -27,7 +27,7 @@ async function delay(time) {
   return new Promise((resolve) => setTimeout(resolve, time));
 }
 
-async function createAgent() {
+async function createTravelAgent() {
   let browser, page;
 
   try {
@@ -186,4 +186,4 @@ async function createAgent() {
 }
 
 // Run the test
-createAgent();
+createTravelAgent();
