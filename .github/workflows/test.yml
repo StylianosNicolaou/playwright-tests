@@ -12,6 +12,11 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        env: [staging, production] # Run tests on both environments
+        browser: [webkit, chromium, firefox] # Run tests on all browsers
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -28,4 +33,4 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Run Playwright Tests
-        run: npm test
+        run: node tests/createAgent.js --env=${{ matrix.env }} --browser=${{ matrix.browser }}
