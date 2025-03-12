@@ -1,0 +1,14 @@
+{
+  "name": "playwright-tests",
+  "version": "1.0.0",
+  "description": "Playwright test automation setup",
+  "scripts": {
+    "test": "node tests/createAgent.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "minimist": "^1.2.8",
+    "playwright": "^1.41.2"
+  },
+  "devDependencies": {}
+}
