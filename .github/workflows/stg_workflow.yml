@@ -1,0 +1,40 @@
+name: Playwright stg Tests
+
+on:
+  push:
+    branches:
+      - stagingNew
+  pull_request:
+    branches:
+      - stagingNew
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        browser: [webkit, chromium, firefox] # Run tests on all browsers
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Run All Playwright Tests
+        run: |
+          for test in tests/*.js; do
+            echo "Running $test"
+            node "$test" --env=staging --browser=${{ matrix.browser }}
+          done

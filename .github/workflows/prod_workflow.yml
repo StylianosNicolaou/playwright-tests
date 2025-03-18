@@ -1,12 +1,13 @@
-name: Playwright Tests
+name: Playwright prod Tests
 
 on:
   push:
     branches:
-      - main
+      - stagingNew
   pull_request:
     branches:
-      - main
+      - stagingNew
+  workflow_dispatch:
 
 jobs:
   test:
@@ -14,7 +15,6 @@ jobs:
 
     strategy:
       matrix:
-        env: [staging, production] # Run tests on both environments
         browser: [webkit, chromium, firefox] # Run tests on all browsers
 
     steps:
@@ -36,5 +36,5 @@ jobs:
         run: |
           for test in tests/*.js; do
             echo "Running $test"
-            node "$test" --env=${{ matrix.env }} --browser=${{ matrix.browser }}
+            node "$test" --env=production --browser=${{ matrix.browser }}
           done

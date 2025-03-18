@@ -53,11 +53,47 @@ async function createTravelAgent() {
     await page.click("text=Agents");
     await delay(3000);
 
-    //Click on button "Add Agent"
+    // Click on button "Add Agent"
     await page.waitForSelector('button[data-testid="add-agent-button"]', {
       state: "visible",
     });
     await page.click('button[data-testid="add-agent-button"]');
+    await delay(2000);
+
+    // Click on Model button
+    await page.waitForSelector(
+      'button[data-testid="model-select-dropdown-trigger"]',
+      {
+        state: "visible",
+      }
+    );
+    await page.click('button[data-testid="model-select-dropdown-trigger"]');
+    await delay(2000);
+
+    // Click on "All Models" button
+    await page.waitForSelector(
+      'button[data-testid="model-select-dropdown-back-to-groups"]',
+      {
+        state: "visible",
+      }
+    );
+    await page.click(
+      'button[data-testid="model-select-dropdown-back-to-groups"]'
+    );
+    await delay(2000);
+
+    // Click on "OpenAI Models" button
+    await page.waitForSelector('button:has-text("OpenAI Models")', {
+      state: "visible",
+    });
+    await page.click('button:has-text("OpenAI Models")');
+    await delay(2000);
+
+    // Clcik "GPT-40 mini" button
+    await page.waitForSelector('button:has-text("GPT-4o Mini")', {
+      state: "visible",
+    });
+    await page.click('button:has-text("GPT-4o Mini")');
     await delay(2000);
 
     // Find the input field and type "Travel Agent"

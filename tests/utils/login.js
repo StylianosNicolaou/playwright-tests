@@ -38,11 +38,11 @@ async function login(passedPage) {
 async function getBrowserInstance(browserType) {
   switch (browserType) {
     case "chromium":
-      return await chromium.launch({ headless: true });
+      return await chromium.launch({ headless: false });
     case "firefox":
-      return await firefox.launch({ headless: true });
+      return await firefox.launch({ headless: false });
     case "webkit":
-      return await webkit.launch({ headless: true }); // Default: Safari
+      return await webkit.launch({ headless: false }); // Default: Safari
     default:
       throw new Error(`❌ Unknown browser type: ${browserType}`);
   }
