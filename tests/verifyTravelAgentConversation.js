@@ -1,22 +1,31 @@
 import { login, page, baseUrl } from "./utils/login.js";
+import {
+  monitorNetworkRequests,
+  monitorConsoleMessages,
+  checkForCriticalErrors,
+} from "./utils/testUtils.js";
 import { tenantSwitcher } from "./utils/tenantSwitcher.js";
 import minimist from "minimist";
 
 // Process the arguments given in terminal
 const args = minimist(process.argv.slice(2));
-const browserType = args.browser || "chromium"; // Default to Chrome
+const browserType = args.browser; // Default to Chrome
 
 // Delay function
 async function delay(time) {
   return new Promise((resolve) => setTimeout(resolve, time));
 }
-
 async function verifyTravelConversation() {
   let browser, page;
-
+  const requestErrors = [];
+  const consoleMessages = [];
   try {
     // Log in to the app
     ({ browser, page } = await login(null, browserType));
+
+    // ✅ Start monitoring network & console logs
+    monitorNetworkRequests(page, requestErrors);
+    monitorConsoleMessages(page, consoleMessages);
 
     await delay(10000);
     // Switch to "System" tenant
@@ -75,28 +84,21 @@ async function verifyTravelConversation() {
     console.log(`✅ Clicked on 'Replies Only' button`);
 
     // ✅ Locate the results section
-    const resultSection = await page.locator(
-      '[data-testid="virtuoso-item-list"]'
-    );
-    if (!(await resultSection.isVisible())) {
-      throw new Error("❌ No results section found.");
-    }
+    await page.waitForSelector('[data-testid="virtuoso-item-list"]', {
+      timeout: 10000,
+    });
     console.log("✅ Results section found.");
 
     // ✅ Find the first message (data-index="0")
-    const firstMessageContainer = await resultSection.locator(
-      '[data-index="0"]'
-    );
-    if (!(await firstMessageContainer.isVisible())) {
-      throw new Error("❌ No first message found (data-index='0').");
-    }
+    await page.waitForSelector('[data-index="0"]', { timeout: 10000 });
     console.log("✅ First message found.");
 
     // ✅ Check for message bubble
-    const messageBubble = await firstMessageContainer.locator(
-      '[data-sentry-component="MessageBubble"]'
-    );
-    if (!(await messageBubble.isVisible())) {
+    const messageBubbleSelector =
+      '[data-index="0"] [data-sentry-component="MessageBubble"]';
+    const messageBubble = await page.$(messageBubbleSelector);
+
+    if (!messageBubble) {
       throw new Error("❌ No message bubble found.");
     }
     console.log("✅ Message bubble found.");
@@ -104,20 +106,27 @@ async function verifyTravelConversation() {
     // ✅ Verify message text
     const expectedText =
       "Suggest 10 honeymoon destinations during summer season";
-    const messageTextLocator = await messageBubble.locator(
-      '[data-sentry-component="MarkdownMessage"] p'
+    await page.waitForSelector(
+      '[data-index="0"] [data-sentry-component="MarkdownMessage"] p',
+      { timeout: 5000 }
     );
-    const messageText = await messageTextLocator.textContent();
+    const messageText = await page.$eval(
+      '[data-index="0"] [data-sentry-component="MarkdownMessage"] p',
+      (el) => el.textContent.trim()
+    );
 
-    if (messageText.trim() !== expectedText) {
+    if (messageText !== expectedText) {
       throw new Error(
-        `❌ Message text does not match. Expected: "${expectedText}", Found: "${messageText.trim()}"`
+        `❌ Message text does not match. Expected: '${expectedText}', Found: '${messageText}'`
       );
     }
 
     console.log("✅ Message text verified successfully.");
+
+    checkForCriticalErrors(requestErrors, consoleMessages);
   } catch (error) {
     console.error("❌ Test Failed", error);
+    process.exit(1); // Ensures test runner detects failure
   } finally {
     await delay(10000);
     if (browser) await browser.close();

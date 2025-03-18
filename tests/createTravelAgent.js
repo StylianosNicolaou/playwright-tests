@@ -142,7 +142,7 @@ async function createTravelAgent() {
 
     // Type the third message
     await page.keyboard.type(
-      "Now also  output 3 activities for each destination",
+      "Now also output 3 activities for each destination",
       { delay: 100 }
     );
     await delay(3000);
