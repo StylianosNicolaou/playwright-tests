@@ -1,10 +1,8 @@
 import { login, baseUrl } from "./utils/login.js"; // Import login function
 import {
   monitorNetworkRequests,
-  logRequestErrors,
-  checkForErrorsOnPage,
   monitorConsoleMessages,
-  logConsoleMessages,
+  checkForCriticalErrors,
 } from "./utils/testUtils.js";
 import fs from "fs";
 import path from "path";
@@ -29,14 +27,12 @@ async function delay(time) {
 
 async function createTravelAgent() {
   let browser, page;
+  const requestErrors = [];
+  const consoleMessages = [];
 
   try {
     // ✅ Pass browserType to the login function
     ({ browser, page } = await login(null, browserType));
-
-    // Setup network and console monitoring
-    const requestErrors = [];
-    const consoleMessages = [];
 
     monitorNetworkRequests(page, requestErrors);
     monitorConsoleMessages(page, consoleMessages);
@@ -211,9 +207,12 @@ async function createTravelAgent() {
       );
     }
 
+    checkForCriticalErrors(requestErrors, consoleMessages);
+
     // Catch the error if test failed or close the browser
   } catch (error) {
     console.error(`❌ Test failed in ${browserType}:`, error);
+    process.exit(1); // Ensures test runner detects failure
   } finally {
     // Close browser
     await delay(5000);
