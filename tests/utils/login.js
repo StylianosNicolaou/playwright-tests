@@ -24,9 +24,9 @@ async function login(passedPage) {
   // ✅ Perform login in the selected browser
   await page.goto(`${baseUrl}signin`, { waitUntil: "networkidle" });
   await page.waitForSelector('input[type="email"]', { state: "visible" });
-  await page.fill('input[type="email"]', "polykarpou.f@yahoo.com"); // Replace with actual username
+  await page.fill('input[type="email"]', "qa.accelerate@unic.ac.cy"); // Replace with actual username
   await page.waitForSelector('input[type="password"]', { state: "visible" });
-  await page.fill('input[type="password"]', "fUnic1995/"); // Replace with actual password
+  await page.fill('input[type="password"]', "Accel123!erate^"); // Replace with actual password
   await page.keyboard.press("Enter");
   await page.waitForLoadState("networkidle");
 

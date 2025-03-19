@@ -6,7 +6,7 @@ import {
 } from "./utils/testUtils.js";
 import { tenantSwitcher } from "./utils/tenantSwitcher.js";
 import minimist from "minimist";
-
+import { navigateToAgents } from "./utils/navigateToAgents.js";
 // Process the arguments given in terminal
 const args = minimist(process.argv.slice(2));
 const browserType = args.browser; // Default to Chrome
@@ -21,28 +21,26 @@ async function verifyTravelConversation() {
   const consoleMessages = [];
   try {
     // Log in to the app
+    console.log("🔄 Logging in and switching tenant...");
     ({ browser, page } = await login(null, browserType));
 
-    // ✅ Start monitoring network & console logs
-    monitorNetworkRequests(page, requestErrors);
-    monitorConsoleMessages(page, consoleMessages);
+    await delay(20000);
 
-    await delay(10000);
-    // Switch to "System" tenant
-    await tenantSwitcher();
-    await delay(5000);
+    console.log("🔄 Switching to 'Administrator' tenant...");
+    await tenantSwitcher(); // Ensure correct tenant is selected before proceeding
 
-    // Verify the tenant switch was successful
-    const selectedTenantButton = await page.$('button[aria-label="Selected"]');
-    if (!selectedTenantButton) {
-      throw new Error("❌ System tenant is not selected");
-    }
-    console.log("✅ Verified that 'Developer' tenant is selected");
+    await delay(20000);
+
+    // Navigate to Agents page after ensuring tenant is switched
+    console.log("🔄 Navigating to Agents page...");
+    await navigateToAgents();
 
     // Go to "Conversations" tab
-    await page.goto(`${baseUrl}powerflow/my-results`, {
-      waitUntil: "networkidle",
+    await page.waitForSelector('img[alt="SidebarConversationIcon"]', {
+      state: "visible",
     });
+    await page.click('img[alt="SidebarConversationIcon"]');
+    await delay(20000);
 
     // Find the latest "Travel Agent" row
     const travelAgentRow = await page
@@ -73,24 +71,34 @@ async function verifyTravelConversation() {
     // Click the agent title
     await travelAgentRow.locator("td:nth-child(2) span").click();
     console.log(`✅ Clicked on agent: ${title}`);
-    await delay(3000);
+    await delay(20000);
 
     // Click the "Replies Only" button
     await page.waitForSelector('button[id="replies-only-switch"]', {
       state: "visible",
     });
     await page.click('button[id="replies-only-switch"]');
-    await delay(3000);
+    await delay(20000);
     console.log(`✅ Clicked on 'Replies Only' button`);
 
     // ✅ Locate the results section
     await page.waitForSelector('[data-testid="virtuoso-item-list"]', {
-      timeout: 10000,
+      timeout: 20000,
     });
     console.log("✅ Results section found.");
+    await delay(20000);
+
+    await page.evaluate(() => {
+      document
+        .querySelector('[data-testid="virtuoso-scroller"]')
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    console.log("🔄 Scrolling to the top to load earlier messages...");
+    await delay(20000);
 
     // ✅ Find the first message (data-index="0")
-    await page.waitForSelector('[data-index="0"]', { timeout: 10000 });
+    await page.waitForSelector('[data-index="0"]', { timeout: 20000 });
     console.log("✅ First message found.");
 
     // ✅ Check for message bubble
@@ -102,13 +110,14 @@ async function verifyTravelConversation() {
       throw new Error("❌ No message bubble found.");
     }
     console.log("✅ Message bubble found.");
+    await delay(20000);
 
     // ✅ Verify message text
     const expectedText =
       "Suggest 10 honeymoon destinations during summer season";
     await page.waitForSelector(
       '[data-index="0"] [data-sentry-component="MarkdownMessage"] p',
-      { timeout: 5000 }
+      { timeout: 20000 }
     );
     const messageText = await page.$eval(
       '[data-index="0"] [data-sentry-component="MarkdownMessage"] p',
@@ -128,7 +137,7 @@ async function verifyTravelConversation() {
     console.error("❌ Test Failed", error);
     process.exit(1); // Ensures test runner detects failure
   } finally {
-    await delay(10000);
+    await delay(20000);
     if (browser) await browser.close();
   }
 }

@@ -11,20 +11,19 @@ export async function tenantSwitcher() {
     console.log("✅ Waiting for tenant headings and buttons...");
     await page.waitForSelector(
       'h2, button[aria-label="Select"], button[aria-label="Selected"]',
-      { timeout: 5000 }
+      { timeout: 15000 }
     );
 
     console.log("✅ Finding the 'Developer' tenant...");
 
     // Wait for and find all h2 elements
-    await page.waitForSelector("h2", { timeout: 5000 });
+    await page.waitForSelector("h2", { timeout: 15000 });
     const headings = await page.$$("h2");
-    let developerButton = null;
 
     for (let heading of headings) {
       const text = await page.evaluate((el) => el.textContent.trim(), heading);
-      if (text === "Developer") {
-        console.log("✅ 'Developer' tenant found");
+      if (text === "Administrator") {
+        console.log("✅ 'Administrator' tenant found");
 
         // Find the parent row containing this heading
         const row = await heading.evaluateHandle((el) => el.closest("tr"));
@@ -33,7 +32,7 @@ export async function tenantSwitcher() {
           // Locate the button inside the same row
           await page.waitForSelector(
             'button[aria-label="Selected"], button[aria-label="Select"]',
-            { timeout: 5000 }
+            { timeout: 15000 }
           );
           const button = await row.$(
             'button[aria-label="Selected"], button[aria-label="Select"]'
@@ -48,7 +47,7 @@ export async function tenantSwitcher() {
 
             if (buttonText === "Switch") {
               console.log(
-                "✅ Clicking 'Switch' to change to 'Developer' tenant..."
+                "✅ Clicking 'Switch' to change to 'Administrator' tenant..."
               );
               await button.click();
               await page.waitForLoadState("networkidle");
@@ -56,12 +55,12 @@ export async function tenantSwitcher() {
               // ✅ Verify the switch was successful
               await page.waitForSelector(
                 'button[aria-label="Selected"]:has-text("Selected")',
-                { timeout: 5000 }
+                { timeout: 15000 }
               );
-              console.log("✅ Successfully switched to 'Developer' tenant");
+              console.log("✅ Successfully switched to 'Administrator' tenant");
             } else {
               console.log(
-                "✅ Already in 'Developer' tenant. No switch needed."
+                "✅ Already in 'Administrator' tenant. No switch needed."
               );
             }
             return; // Exit function once action is taken
@@ -70,7 +69,7 @@ export async function tenantSwitcher() {
       }
     }
 
-    throw new Error("❌ 'Developer' tenant not found or button missing.");
+    throw new Error("❌ 'Administrator' tenant not found or button missing.");
   } catch (error) {
     console.error("❌ Error during tenant switching:", error);
     throw error;

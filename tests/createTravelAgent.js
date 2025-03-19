@@ -40,21 +40,21 @@ async function createTravelAgent() {
     // Click on "Powerflow"
     await page.waitForSelector('img[alt="Powerflow"]', { state: "visible" });
     await page.click('img[alt="Powerflow"]');
-    await delay(2000);
+    await delay(20000);
 
     // Click on "Agents"
     await page.waitForSelector("text=Agents", {
       state: "visible",
     });
     await page.click("text=Agents");
-    await delay(3000);
+    await delay(20000);
 
     // Click on button "Add Agent"
     await page.waitForSelector('button[data-testid="add-agent-button"]', {
       state: "visible",
     });
     await page.click('button[data-testid="add-agent-button"]');
-    await delay(2000);
+    await delay(20000);
 
     // Click on Model button
     await page.waitForSelector(
@@ -64,7 +64,7 @@ async function createTravelAgent() {
       }
     );
     await page.click('button[data-testid="model-select-dropdown-trigger"]');
-    await delay(2000);
+    await delay(20000);
 
     // Click on "All Models" button
     await page.waitForSelector(
@@ -76,14 +76,14 @@ async function createTravelAgent() {
     await page.click(
       'button[data-testid="model-select-dropdown-back-to-groups"]'
     );
-    await delay(2000);
+    await delay(20000);
 
     // Click on "OpenAI Models" button
     await page.waitForSelector('button:has-text("OpenAI Models")', {
       state: "visible",
     });
     await page.click('button:has-text("OpenAI Models")');
-    await delay(2000);
+    await delay(20000);
 
     // Clcik "GPT-40 mini" button
     await page.waitForSelector('button:has-text("GPT-4o Mini")', {
@@ -97,7 +97,7 @@ async function createTravelAgent() {
       state: "visible",
     });
     await page.fill('input[data-testid="agent-name-input"]', "Travel Agent");
-    await delay(2000);
+    await delay(20000);
     console.log("✅ Agent name added successfully");
 
     // Click on the message input
@@ -107,9 +107,9 @@ async function createTravelAgent() {
     // Type the first message
     await page.keyboard.type(
       "Suggest 10 honeymoon destinations during summer season",
-      { delay: 100 }
+      { delay: 1000 }
     );
-    await delay(3000);
+    await delay(20000);
     console.log("✅ First message added successfully");
 
     // Click the "Add Message" button
@@ -117,15 +117,15 @@ async function createTravelAgent() {
       state: "visible",
     });
     await page.click('button[data-testid="add-message-button"]');
-    await delay(3000);
+    await delay(20000);
     console.log("✅ Add Message button clicked successfully");
 
     // Type the second message
     await page.keyboard.type(
       "For each of the above honeymoon destinations, suggest the two ideal hotels for honeymooners",
-      { delay: 100 }
+      { delay: 1000 }
     );
-    await delay(3000);
+    await delay(20000);
     console.log("✅ Second message added successfully");
 
     // Click the "Add Message" button
@@ -133,15 +133,15 @@ async function createTravelAgent() {
       state: "visible",
     });
     await page.click('button[data-testid="add-message-button"]');
-    await delay(3000);
+    await delay(20000);
     console.log("✅ Add Message button clicked successfully");
 
     // Type the third message
     await page.keyboard.type(
       "Now also output 3 activities for each destination",
-      { delay: 100 }
+      { delay: 1000 }
     );
-    await delay(3000);
+    await delay(20000);
     console.log("✅ Second message added successfully");
 
     // Click the "Create Agent" button
@@ -149,7 +149,7 @@ async function createTravelAgent() {
       state: "visible",
     });
     await page.click('button[data-testid="create-agent-button"]');
-    await delay(3000);
+    await delay(20000);
     console.log("✅ Create agent button clicked successfully");
 
     // Click the "Run" button (button containing the `LuPlay` SVG icon)
@@ -158,7 +158,7 @@ async function createTravelAgent() {
       { state: "visible" }
     );
     await page.click('button:has(svg[data-sentry-element="LuPlay"])');
-    await delay(3000); // Wait for the action to complete
+    await delay(20000);
 
     // Click white "Run" button
     await page.waitForSelector('button.bg-slate-900:has-text("Run")', {
@@ -166,7 +166,7 @@ async function createTravelAgent() {
     });
     await page.click('button.bg-slate-900:has-text("Run")');
     console.log("✅ White 'Run' button clicked");
-    await delay(5000);
+    await delay(20000);
 
     // Wait for the result card to appear
     await page.waitForSelector('h2[data-sentry-element="CardTitle"]', {
@@ -215,7 +215,7 @@ async function createTravelAgent() {
     process.exit(1); // Ensures test runner detects failure
   } finally {
     // Close browser
-    await delay(5000);
+    await delay(20000);
     if (browser) await browser.close();
   }
 }
