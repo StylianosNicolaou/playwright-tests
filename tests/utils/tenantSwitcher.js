@@ -1,6 +1,6 @@
 import { page, baseUrl } from "./login.js"; // Importing shared page object from login.js
 
-// ✅ Function to switch to the "Developer" tenant if needed
+// ✅ Function to switch to the "System" Administrator tenant if needed
 export async function tenantSwitcher() {
   try {
     console.log("✅ Navigating to personal info page...");
@@ -8,68 +8,75 @@ export async function tenantSwitcher() {
       waitUntil: "networkidle",
     });
 
-    console.log("✅ Waiting for tenant headings and buttons...");
+    console.log("✅ Waiting for tenant table to load...");
     await page.waitForSelector(
       'h2, button[aria-label="Select"], button[aria-label="Selected"]',
       { timeout: 15000 }
     );
 
-    console.log("✅ Finding the 'Developer' tenant...");
+    console.log("✅ Searching for 'System' with role 'Administrator'...");
 
-    // Wait for and find all h2 elements
-    await page.waitForSelector("h2", { timeout: 15000 });
-    const headings = await page.$$("h2");
+    // Find all organization rows
+    await page.waitForSelector("tbody tr", { timeout: 15000 });
+    const rows = await page.$$("tbody tr");
 
-    for (let heading of headings) {
-      const text = await page.evaluate((el) => el.textContent.trim(), heading);
-      if (text === "Administrator") {
-        console.log("✅ 'Administrator' tenant found");
+    for (let row of rows) {
+      // Extract organization name and role from each row
+      const orgNameElement = await row.$("td:nth-child(1) h2");
+      const roleElement = await row.$("td:nth-child(2) h2");
 
-        // Find the parent row containing this heading
-        const row = await heading.evaluateHandle((el) => el.closest("tr"));
+      if (!orgNameElement || !roleElement) continue;
 
-        if (row) {
-          // Locate the button inside the same row
-          await page.waitForSelector(
-            'button[aria-label="Selected"], button[aria-label="Select"]',
-            { timeout: 15000 }
+      const orgName = await page.evaluate(
+        (el) => el.textContent.trim(),
+        orgNameElement
+      );
+      const role = await page.evaluate(
+        (el) => el.textContent.trim(),
+        roleElement
+      );
+
+      console.log(`🔍 Checking: ${orgName} - ${role}`);
+
+      if (orgName === "System" && role === "Administrator") {
+        console.log("✅ 'System' Administrator found!");
+
+        // Locate the button inside the same row
+        const button = await row.$(
+          'button[aria-label="Selected"], button[aria-label="Select"]'
+        );
+
+        if (button) {
+          const buttonText = await page.evaluate(
+            (el) => el.textContent.trim(),
+            button
           );
-          const button = await row.$(
-            'button[aria-label="Selected"], button[aria-label="Select"]'
-          );
+          console.log(`✅ Found button with text: "${buttonText}"`);
 
-          if (button) {
-            const buttonText = await page.evaluate(
-              (el) => el.textContent.trim(),
-              button
+          if (buttonText === "Switch") {
+            console.log(
+              "✅ Clicking 'Switch' to change to 'System' Administrator tenant..."
             );
-            console.log(`✅ Found button with text: "${buttonText}"`);
+            await button.click();
+            await page.waitForLoadState("networkidle");
 
-            if (buttonText === "Switch") {
-              console.log(
-                "✅ Clicking 'Switch' to change to 'Administrator' tenant..."
-              );
-              await button.click();
-              await page.waitForLoadState("networkidle");
-
-              // ✅ Verify the switch was successful
-              await page.waitForSelector(
-                'button[aria-label="Selected"]:has-text("Selected")',
-                { timeout: 15000 }
-              );
-              console.log("✅ Successfully switched to 'Administrator' tenant");
-            } else {
-              console.log(
-                "✅ Already in 'Administrator' tenant. No switch needed."
-              );
-            }
-            return; // Exit function once action is taken
+            // ✅ Verify the switch was successful
+            await page.waitForSelector(
+              'button[aria-label="Selected"]:has-text("Selected")',
+              { timeout: 15000 }
+            );
+            console.log("✅ Successfully switched to 'System' Administrator");
+          } else {
+            console.log(
+              "✅ Already in 'System' Administrator. No switch needed."
+            );
           }
+          return; // Exit function once action is taken
         }
       }
     }
 
-    throw new Error("❌ 'Administrator' tenant not found or button missing.");
+    throw new Error("❌ 'System' Administrator not found or button missing.");
   } catch (error) {
     console.error("❌ Error during tenant switching:", error);
     throw error;
